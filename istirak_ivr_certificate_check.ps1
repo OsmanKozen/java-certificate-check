@@ -2,19 +2,19 @@
 
 # sunucu hostname'i
 $hostname = hostname
-# keytool.exe'nin bulunduðu path
+# keytool.exe'nin bulunduğu path
 $keytool_path = "C:\Cisco\CVP\jre\bin"
-# cacert sertifikalarýn bulunduðu dosya
+# cacert sertifikaların bulunduğu dosya
 $cacerts_path = "C:\Cisco\CVP\jre\lib\security\cacerts"
-# keytool þifresi
+# keytool şifresi
 $keytool_pass = "PASSWORD"
-# mail attachment dosyasýnýn path'i, opsiyoneldir. kullanýlmayacaksa koddan da silinebilir.
+# mail attachment dosyasının path'i, opsiyoneldir. kullanılmayacaksa koddan da silinebilir.
 $mail_attachment = "D:\Admin_Job\certificate_info.txt"
-# sertifika adlarýnýn export edildiði dosya adý
+# sertifika adlarının export edildiði dosya adı
 $cert_list_path = "D:\Admin_Job\certificate_names_list.txt"
 
 # SMTP Server parametreleri
-$from_mail = "Istirak IVR-Sertifika-Bilgilendirme <$hostname@company.com.tr>"
+$from_mail = "Java-Bilgilendirme <$hostname@company.com.tr>"
 $to_mail = "Teamname1 <Teamname1@company.com.tr>", "Teamname2 <Teamname2@company.com.tr>"
 # $to_mail = "Username <Username@company.com.tr>"
 $mail_subject = "Uygulama $hostname Server Sertifika Kontrol"
@@ -22,7 +22,7 @@ $smtp_server = "smtp.company.com.tr"
 
 cd $keytool_path
 
-# Built-in olmayan serfikalarý bulma
+# Built-in olmayan serfikaları bulma
 $cert_list = .\keytool.exe -list -keystore $cacerts_path -storepass $keytool_pass -rfc | Select-String -Pattern "jdk" -NotMatch | Select-String "Alias name:"
 $cert_list = $cert_list -replace '^.{12}', ''
 Write-Output $cert_list > $cert_list_path
@@ -53,7 +53,7 @@ for ($i = 0; $i -le $cert_detail_output_list.Length - 1; $i++) {
     $certs_details += $cert_detail_output_list[$i]
 } 
 
-# Mail body içeriðini hazýrlama
+# Mail body içeriğini hazırlama
 $mail_body_content = "<b>Sertifika bilgileri ozet:</b><br>" + $certs_summary + "<br>" + "<b>Sertifika detaylari: </b><br>" + $certs_details
 
 # Mail gönderimi

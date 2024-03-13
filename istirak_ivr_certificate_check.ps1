@@ -1,29 +1,28 @@
-# 20.02.2024 - Osman Közen
-# Ýþtirak IVR Sertifika Kontrol script'i
+# Sertifika Kontrol script'i
 
 # sunucu hostname'i
 $hostname = hostname
-# keytool.exe'nin bulunduðu path
+# keytool.exe'nin bulunduÃ°u path
 $keytool_path = "C:\Cisco\CVP\jre\bin"
-# cacert sertifikalarýn bulunduðu dosya
+# cacert sertifikalarÃ½n bulunduÃ°u dosya
 $cacerts_path = "C:\Cisco\CVP\jre\lib\security\cacerts"
-# keytool þifresi
-$keytool_pass = "changeit"
-# mail attachment dosyasýnýn path'i, opsiyoneldir. kullanýlmayacaksa koddan da silinebilir.
+# keytool Ã¾ifresi
+$keytool_pass = "PASSWORD"
+# mail attachment dosyasÃ½nÃ½n path'i, opsiyoneldir. kullanÃ½lmayacaksa koddan da silinebilir.
 $mail_attachment = "D:\Admin_Job\certificate_info.txt"
-# sertifika adlarýnýn export edildiði dosya adý
+# sertifika adlarÃ½nÃ½n export edildiÃ°i dosya adÃ½
 $cert_list_path = "D:\Admin_Job\certificate_names_list.txt"
 
 # SMTP Server parametreleri
-$from_mail = "Istirak IVR-Sertifika-Bilgilendirme <$hostname@garantibbva.com.tr>"
-$to_mail = "GT-Finansal Sirketler Rezilyans Yonetimi <GTFinansalSirketlerRezilyansYonetimi@garantibbva.com.tr>", "GT-Iletisim Merkezi ve Dokuman Yonetimi <GTIletisimMerkeziveDokumanYonetimi@garantibbva.com.tr>"
-# $to_mail = "Osman Közen <OsmanKoz@garantibbva.com.tr>"
-$mail_subject = "Istirak IVR $hostname Server Sertifika Kontrol"
-$smtp_server = "Smtpappv1.fw.garanti.com.tr"
+$from_mail = "Istirak IVR-Sertifika-Bilgilendirme <$hostname@company.com.tr>"
+$to_mail = "Teamname1 <Teamname1@company.com.tr>", "Teamname2 <Teamname2@company.com.tr>"
+# $to_mail = "Username <Username@company.com.tr>"
+$mail_subject = "Uygulama $hostname Server Sertifika Kontrol"
+$smtp_server = "smtp.company.com.tr"
 
 cd $keytool_path
 
-# Built-in olmayan serfikalarý bulma
+# Built-in olmayan serfikalarÃ½ bulma
 $cert_list = .\keytool.exe -list -keystore $cacerts_path -storepass $keytool_pass -rfc | Select-String -Pattern "jdk" -NotMatch | Select-String "Alias name:"
 $cert_list = $cert_list -replace '^.{12}', ''
 Write-Output $cert_list > $cert_list_path
@@ -34,7 +33,7 @@ $certs_summary = @()
 $cert_detail_output_list = @()
 $certs_details = @()
 
-# Sertifika özet bilgilerini çekme
+# Sertifika Ã¶zet bilgilerini Ã§ekme
 for ($i = 0; $i -le $cert_list.Length - 1; $i++) { 
     $cert_output_list +=  .\keytool.exe -list -keystore $cacerts_path -storepass $keytool_pass | Select-String -Pattern $cert_list[$i] -Context 0,1
     $cert_output_list += "<br>"
@@ -44,7 +43,7 @@ for ($i = 0; $i -le $cert_output_list.Length - 1; $i++) {
     $certs_summary += $cert_output_list[$i]
 } 
 
-# Sertifika detay bilgilerini çekme
+# Sertifika detay bilgilerini Ã§ekme
 for ($i = 0; $i -le $cert_list.Length - 1; $i++) { 
     $cert_detail_output_list +=  .\keytool.exe -list -v -alias $cert_list[$i] -keystore $cacerts_path -storepass $keytool_pass
     $cert_detail_output_list += "<br><br>"
@@ -54,10 +53,10 @@ for ($i = 0; $i -le $cert_detail_output_list.Length - 1; $i++) {
     $certs_details += $cert_detail_output_list[$i]
 } 
 
-# Mail body içeriðini hazýrlama
+# Mail body iÃ§eriÃ°ini hazÃ½rlama
 $mail_body_content = "<b>Sertifika bilgileri ozet:</b><br>" + $certs_summary + "<br>" + "<b>Sertifika detaylari: </b><br>" + $certs_details
 
-# Mail gönderimi
-Send-MailMessage -From $from_mail -To $to_mail -Subject $mail_subject -Attachments $mail_attachment -Body "Merhaba,<br><br>$hostname sunucusunda, Cisco CVP Java keytool'daki sertifikalar kontrol edilmistir. <br><br> $mail_body_content <br><b><u><i>Not: Cisco CVP sertifikalari hakkinda bilgi icin ekteki dosyadaki yonlendirmeleri takip edebilirsiniz. Sertifikalar hakkinda bilgi icin 'GT-SSL Sertifika' ekibi ile iletisime gecebilirsiniz.</i></u></b><br><br>Iyi calismalar<br>GT-Finansal Sirketler Rezilyans Yonetimi" -BodyAsHtml -Priority High -SmtpServer $smtp_server
+# Mail gÃ¶nderimi
+Send-MailMessage -From $from_mail -To $to_mail -Subject $mail_subject -Attachments $mail_attachment -Body "Merhaba,<br><br>$hostname sunucusunda, Java keytool'daki sertifikalar kontrol edilmistir. <br><br> $mail_body_content <br><b><u><i>Not: Java sertifikalari hakkinda bilgi icin ekteki dosyadaki yonlendirmeleri takip edebilirsiniz. Sertifikalar hakkinda bilgi icin 'Company Team' ekibi ile iletisime gecebilirsiniz.</i></u></b><br><br>Iyi calismalar<br>Teamname1" -BodyAsHtml -Priority High -SmtpServer $smtp_server
 
 Write-Output "Sertifika detaylari basariyla gonderildi. `n$mail_body_content"

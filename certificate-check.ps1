@@ -46,6 +46,8 @@ for ($i = 0; $i -le $cert_output_list.Length - 1; $i++) {
 # Sertifika detay bilgilerini çekme
 for ($i = 0; $i -le $cert_list.Length - 1; $i++) { 
     $cert_detail_output_list +=  .\keytool.exe -list -v -alias $cert_list[$i] -keystore $cacerts_path -storepass $keytool_pass
+    $cert_detail_valid_from = .\keytool.exe -list -v -alias $cert_list[$i] -keystore $cacerts_path -storepass $keytool_pass | Select-String "Valid from:"
+    $cert_detail_output_list += "<br><b>" + $cert_detail_valid_from + "</b>"
     $cert_detail_output_list += "<br><br>"
 } 
 
